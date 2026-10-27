@@ -7,3 +7,8 @@ class DomainError(Exception):
     def __init__(self, message: str = "") -> None:
         super().__init__(message or self.code)
         self.message = message or self.code
+
+
+class IdempotencyKeyReused(DomainError):
+    status_code = 409
+    code = "idempotency_key_reused"
