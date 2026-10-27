@@ -9,3 +9,8 @@ class LoginIn(Schema):
 class LoginOut(Schema):
     token: str
     role: str
+
+class MeOut(Schema):
+    id: int
+    username: str
+    role: str
