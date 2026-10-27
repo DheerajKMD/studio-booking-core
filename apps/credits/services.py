@@ -72,3 +72,30 @@ def spend(
             created_at=now,
         )
     return draws
+
+def refund_booking(booking_id: int, clock: Clock = default_clock) -> int:
+    """Return a booking's credits to the packs they came from.
+
+    Safe to call twice: a second call finds the earlier refund and does nothing.
+    Must run inside a transaction. Returns the number of credits refunded.
+    """
+    already_refunded = LedgerEntry.objects.filter(
+        booking_id=booking_id, reason=LedgerReason.REFUND
+    ).exists()
+    if already_refunded:
+        return 0
+
+    now = clock.now()
+    charges = LedgerEntry.objects.filter(booking_id=booking_id, amount__lt=0)
+    total = 0
+    for charge in charges:
+        LedgerEntry.objects.create(
+            member_id=charge.member_id,
+            pack_id=charge.pack_id,
+            amount=-charge.amount,
+            reason=LedgerReason.REFUND,
+            booking_id=booking_id,
+            created_at=now,
+        )
+        total += -charge.amount
+    return total

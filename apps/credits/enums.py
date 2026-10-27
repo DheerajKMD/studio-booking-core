@@ -6,4 +6,3 @@ class LedgerReason(models.TextChoices):
     BOOKING = "booking", "Booking charge"
     WAITLIST_CHARGE = "waitlist_charge", "Waitlist promotion charge"
     REFUND = "refund", "Cancellation refund"
-    FORFEIT = "forfeit", "Late cancellation forfeit"
