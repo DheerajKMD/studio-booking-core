@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from django.contrib.auth.models import AbstractBaseUser
 from django.db import transaction
 
+from apps.accounts.models import User
 from apps.common.clock import Clock, default_clock
 
 from .enums import LedgerReason
@@ -14,8 +14,8 @@ strategy: SpendingStrategy = ExpiringSoonestFirst()
 
 
 def grant_pack(
-    member: AbstractBaseUser,
-    granted_by: AbstractBaseUser,
+    member: User,
+    granted_by: User,
     credits: int,
     expires_at: datetime,
     clock: Clock = default_clock,
@@ -43,18 +43,16 @@ def grant_pack(
     return pack
 
 
-def can_afford(
-    member: AbstractBaseUser, cost: int, clock: Clock = default_clock
-) -> bool:
+def can_afford(member: User, cost: int, clock: Clock = default_clock) -> bool:
     """Call inside a transaction (it locks pack rows)."""
     return strategy.plan(member, cost, clock.now()) is not None
 
 
 def spend(
-    member: AbstractBaseUser,
+    member: User,
     cost: int,
     reason: LedgerReason,
-    booking_id: int,
+    booking_id: int | None,
     clock: Clock = default_clock,
 ) -> list[Draw]:
     """Charge `cost` credits, soonest-expiring first. Must run inside a transaction."""

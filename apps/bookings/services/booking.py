@@ -1,6 +1,6 @@
-from django.contrib.auth.models import AbstractBaseUser
 from django.db import transaction
 
+from apps.accounts.models import User
 from apps.common.clock import Clock, default_clock
 from apps.credits import services as credit_services
 from apps.credits.enums import LedgerReason
@@ -30,7 +30,7 @@ def confirmed_count(class_session: ClassSession) -> int:
 
 
 def book_class(
-    member: AbstractBaseUser,
+    member: User,
     class_id: int,
     clock: Clock = default_clock,
 ) -> Booking:

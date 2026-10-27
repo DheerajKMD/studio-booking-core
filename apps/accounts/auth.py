@@ -12,3 +12,9 @@ class TokenAuth(HttpBearer):
             .first()
         )
         return auth_token.user if auth_token else None
+
+
+def get_user(request: HttpRequest) -> User:
+    user = getattr(request, "auth", None)
+    assert isinstance(user, User)
+    return user

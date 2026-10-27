@@ -3,8 +3,9 @@ import json
 from collections.abc import Callable
 from typing import Any
 
-from django.contrib.auth.models import AbstractBaseUser
 from django.db import IntegrityError, transaction
+
+from apps.accounts.models import User
 
 from .exceptions import IdempotencyKeyReused
 from .models import IdempotencyRecord
@@ -16,7 +17,7 @@ def hash_request(payload: dict[str, Any]) -> str:
 
 
 def run_idempotent(
-    member: AbstractBaseUser,
+    member: User,
     key: str | None,
     payload: dict[str, Any],
     action: Callable[[], tuple[int, dict[str, Any]]],

@@ -74,7 +74,7 @@ class LedgerEntry(models.Model):
     def save(self, *args: object, **kwargs: object) -> None:
         if self.pk is not None:
             raise RuntimeError("Ledger entries are append-only.")
-        super().save(*args, **kwargs)  # type: ignore[arg-type]
+        super().save(*args, **kwargs)
 
     def delete(self, *args: object, **kwargs: object) -> tuple[int, dict[str, int]]:
         raise RuntimeError("Ledger entries are append-only.")

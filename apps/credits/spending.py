@@ -2,8 +2,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Protocol
 
-from django.contrib.auth.models import AbstractBaseUser
 from django.db.models import Sum
+
+from apps.accounts.models import User
 
 from .models import CreditPack, LedgerEntry
 
@@ -15,9 +16,7 @@ class Draw:
 
 
 class SpendingStrategy(Protocol):
-    def plan(
-        self, member: AbstractBaseUser, cost: int, now: datetime
-    ) -> list[Draw] | None:
+    def plan(self, member: User, cost: int, now: datetime) -> list[Draw] | None:
         """Return how to pay `cost`, or None if the member can't afford it."""
         ...
 
@@ -25,9 +24,7 @@ class SpendingStrategy(Protocol):
 class ExpiringSoonestFirst:
     """FEFO: spend credits from the pack that expires soonest."""
 
-    def plan(
-        self, member: AbstractBaseUser, cost: int, now: datetime
-    ) -> list[Draw] | None:
+    def plan(self, member: User, cost: int, now: datetime) -> list[Draw] | None:
         packs = (
             CreditPack.objects.select_for_update()
             .filter(member=member, expires_at__gt=now, granted_at__lte=now)

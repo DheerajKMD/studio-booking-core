@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from datetime import UTC, datetime, timedelta
 
 import pytest
@@ -5,6 +6,7 @@ import pytest
 from apps.accounts.models import User
 from apps.common.clock import FixedClock
 from apps.credits import services as credit_services
+from apps.credits.models import CreditPack
 from apps.studios.models import ClassSession, Studio
 
 NOW = datetime(2026, 10, 27, 10, 0, tzinfo=UTC)
@@ -17,19 +19,21 @@ def clock() -> FixedClock:
 
 @pytest.fixture
 def staff(db: None) -> User:
-    return User.objects.create_user("staff", password="x", role="staff")
+    user: User = User.objects.create_user("staff", password="x", role="staff")
+    return user
 
 
 @pytest.fixture
-def make_member(db: None):
+def make_member(db: None) -> Callable[[str], User]:
     def _make(name: str) -> User:
-        return User.objects.create_user(name, password="x", role="member")
+        user: User = User.objects.create_user(name, password="x", role="member")
+        return user
 
     return _make
 
 
 @pytest.fixture
-def member(make_member) -> User:
+def member(make_member: Callable[[str], User]) -> User:
     return make_member("alice")
 
 
@@ -41,7 +45,7 @@ def studio(db: None) -> Studio:
 
 
 @pytest.fixture
-def make_class(studio: Studio):
+def make_class(studio: Studio) -> Callable[..., ClassSession]:
     def _make(starts_at: datetime, capacity: int = 2, cost: int = 3) -> ClassSession:
         return ClassSession.objects.create(
             studio=studio,
@@ -56,8 +60,8 @@ def make_class(studio: Studio):
 
 
 @pytest.fixture
-def grant(staff: User, clock: FixedClock):
-    def _grant(member: User, credits: int, days: int = 30):
+def grant(staff: User, clock: FixedClock) -> Callable[..., CreditPack]:
+    def _grant(member: User, credits: int, days: int = 30) -> CreditPack:
         return credit_services.grant_pack(
             member, staff, credits, NOW + timedelta(days=days), clock
         )

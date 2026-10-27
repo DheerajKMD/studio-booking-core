@@ -3,7 +3,7 @@ from datetime import datetime
 from django.http import HttpRequest
 from ninja import Router
 
-from apps.accounts.auth import TokenAuth
+from apps.accounts.auth import TokenAuth, get_user
 from apps.accounts.models import User
 from apps.accounts.permissions import ensure_self_or_staff, require_staff
 from apps.common.clock import default_clock
@@ -24,16 +24,12 @@ class MemberNotFound(DomainError):
 def grant_pack(
     request: HttpRequest, member_id: int, payload: GrantIn
 ) -> tuple[int, PackOut]:
-    require_staff(request.auth)  # type: ignore[attr-defined]
+    user = get_user(request)
+    require_staff(user)
     member = User.objects.filter(pk=member_id, role=User.Role.MEMBER).first()
     if member is None:
         raise MemberNotFound(f"Member {member_id} not found.")
-    pack = services.grant_pack(
-        member,
-        request.auth,
-        payload.credits,
-        payload.expires_at,  # type: ignore[attr-defined]
-    )
+    pack = services.grant_pack(member, user, payload.credits, payload.expires_at)
     return 201, PackOut(
         id=pack.pk,
         credits=pack.credits,
@@ -46,7 +42,7 @@ def grant_pack(
 def balance(
     request: HttpRequest, member_id: int, as_of: datetime | None = None
 ) -> BalanceOut:
-    ensure_self_or_staff(request.auth, member_id)  # type: ignore[attr-defined]
+    ensure_self_or_staff(get_user(request), member_id)
     if as_of is not None:
         return BalanceOut(
             member_id=member_id,
@@ -54,7 +50,11 @@ def balance(
             as_of=as_of,
         )
     packs = [
-        PackBalanceOut(id=p.pk, remaining=p.remaining, expires_at=p.expires_at)  # type: ignore[attr-defined]
+        PackBalanceOut(
+            id=p.pk,
+            remaining=getattr(p, "remaining", 0),
+            expires_at=p.expires_at,
+        )
         for p in selectors.pack_breakdown(member_id)
     ]
     return BalanceOut(
@@ -67,7 +67,7 @@ def balance(
 
 @router.get("/members/{member_id}/movements", response=list[MovementOut])
 def movements(request: HttpRequest, member_id: int) -> list[MovementOut]:
-    ensure_self_or_staff(request.auth, member_id)  # type: ignore[attr-defined]
+    ensure_self_or_staff(get_user(request), member_id)
     return [
         MovementOut(
             id=e.pk,
