@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
@@ -63,13 +63,13 @@ def test_cutoff_is_measured_in_studio_local_time(db):
     session = ClassSession.objects.create(
         studio=studio,
         title="Flow",
-        starts_at=datetime(2026, 11, 1, 9, 0, tzinfo=timezone.utc),
+        starts_at=datetime(2026, 11, 1, 9, 0, tzinfo=UTC),
         duration_minutes=60,
         capacity=5,
         credit_cost=1,
     )
-    assert is_refundable(session, datetime(2026, 11, 1, 3, 59, tzinfo=timezone.utc))
-    assert not is_refundable(session, datetime(2026, 11, 1, 4, 30, tzinfo=timezone.utc))
+    assert is_refundable(session, datetime(2026, 11, 1, 3, 59, tzinfo=UTC))
+    assert not is_refundable(session, datetime(2026, 11, 1, 4, 30, tzinfo=UTC))
 
 
 def test_double_cancel_refunds_once(member, grant, make_class, clock):

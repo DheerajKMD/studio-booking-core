@@ -73,6 +73,7 @@ def spend(
         )
     return draws
 
+
 def refund_booking(booking_id: int, clock: Clock = default_clock) -> int:
     """Return a booking's credits to the packs they came from.
 

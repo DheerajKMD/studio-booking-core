@@ -2,7 +2,6 @@ from django.contrib.auth.models import AbstractBaseUser
 from django.db import transaction
 
 from apps.common.clock import Clock, default_clock
-
 from apps.credits import services as credit_services
 from apps.credits.enums import LedgerReason
 from apps.credits.exceptions import InsufficientCredits

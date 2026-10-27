@@ -9,11 +9,6 @@ from apps.accounts.permissions import ensure_self_or_staff
 from apps.common.idempotency import run_idempotent
 
 from . import selectors
-from .models import Booking
-from .schemas import BookingOut
-from .services.booking import book_class
-
-from . import selectors
 from .models import Booking, WaitlistEntry
 from .schemas import BookingOut, WaitlistOut
 from .services.booking import book_class
@@ -53,7 +48,6 @@ def book(
 def list_bookings(request: HttpRequest, member_id: int) -> list[BookingOut]:
     ensure_self_or_staff(request.auth, member_id)  # type: ignore[attr-defined]
     return [to_out(b) for b in selectors.member_bookings(member_id)]
-
 
 
 def waitlist_out(entry: WaitlistEntry) -> WaitlistOut:

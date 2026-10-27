@@ -29,7 +29,10 @@ def grant_pack(
     if member is None:
         raise MemberNotFound(f"Member {member_id} not found.")
     pack = services.grant_pack(
-        member, request.auth, payload.credits, payload.expires_at  # type: ignore[attr-defined]
+        member,
+        request.auth,
+        payload.credits,
+        payload.expires_at,  # type: ignore[attr-defined]
     )
     return 201, PackOut(
         id=pack.pk,

@@ -47,9 +47,9 @@ class ClassSession(models.Model):
             ),
         ]
 
+    def __str__(self) -> str:
+        return f"{self.title} @ {self.starts_at:%Y-%m-%d %H:%M}"
+
     @property
     def ends_at(self) -> datetime:
         return self.starts_at + timedelta(minutes=self.duration_minutes)
-
-    def __str__(self) -> str:
-        return f"{self.title} @ {self.starts_at:%Y-%m-%d %H:%M}"

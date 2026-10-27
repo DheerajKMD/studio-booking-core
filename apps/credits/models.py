@@ -68,6 +68,9 @@ class LedgerEntry(models.Model):
             models.Index(fields=["member", "created_at"]),
         ]
 
+    def __str__(self) -> str:
+        return f"Ledger {self.pk}: {self.amount} ({self.reason})"
+
     def save(self, *args: object, **kwargs: object) -> None:
         if self.pk is not None:
             raise RuntimeError("Ledger entries are append-only.")

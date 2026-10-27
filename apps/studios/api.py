@@ -1,15 +1,13 @@
+from datetime import datetime
+
 from django.http import HttpRequest
 from ninja import Router
 
 from apps.accounts.auth import TokenAuth
 from apps.accounts.permissions import require_staff
 
-from . import services
+from . import selectors, services
 from .schemas import ClassIn, ClassOut, StudioIn, StudioOut, StudioUpdateIn
-
-from datetime import datetime
-
-from . import selectors
 
 router = Router(tags=["studios"], auth=TokenAuth())
 

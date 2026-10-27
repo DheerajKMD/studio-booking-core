@@ -22,9 +22,7 @@ def test_spend_spans_packs(member, grant, clock, db):
     soon = grant(member, 2, days=10)
     late = grant(member, 5, days=60)
     services.spend(member, 4, LedgerReason.BOOKING, booking_id=None, clock=clock)
-    by_pack = {
-        e.pack_id: e.amount for e in LedgerEntry.objects.filter(amount__lt=0)
-    }
+    by_pack = {e.pack_id: e.amount for e in LedgerEntry.objects.filter(amount__lt=0)}
     assert by_pack == {soon.pk: -2, late.pk: -2}
     assert selectors.current_balance(member.pk, clock) == 3
 

@@ -33,9 +33,7 @@ def test_member_cannot_grant_credits(make_member):
     assert resp.status_code == 403
 
 
-def test_retry_with_same_idempotency_key_books_once(
-    member, grant, make_class, clock
-):
+def test_retry_with_same_idempotency_key_books_once(member, grant, make_class, clock):
     grant(member, 10)  # fixed-clock grant, expires in 30 days from test NOW
     session = make_class(timezone.now() + timedelta(days=2))
     headers = {**auth(member), "HTTP_IDEMPOTENCY_KEY": "abc-1"}

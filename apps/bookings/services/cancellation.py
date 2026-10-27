@@ -10,6 +10,7 @@ from ..models import Booking
 from .booking import lock_class
 from .waitlist import promote_from_waitlist
 
+
 def cancel_booking(
     booking_id: int,
     member_id: int | None = None,
@@ -49,4 +50,3 @@ def cancel_booking(
 
         promote_from_waitlist(session, clock)
         return booking
-

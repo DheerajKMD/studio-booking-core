@@ -21,3 +21,6 @@ class IdempotencyRecord(models.Model):
                 name="unique_idempotency_key_per_member",
             ),
         ]
+
+    def __str__(self) -> str:
+        return f"{self.member_id}:{self.key}"

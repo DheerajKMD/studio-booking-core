@@ -1,14 +1,13 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pytest
 
 from apps.accounts.models import User
-from apps.bookings.models import Booking
 from apps.common.clock import FixedClock
 from apps.credits import services as credit_services
 from apps.studios.models import ClassSession, Studio
 
-NOW = datetime(2026, 10, 27, 10, 0, tzinfo=timezone.utc)
+NOW = datetime(2026, 10, 27, 10, 0, tzinfo=UTC)
 
 
 @pytest.fixture

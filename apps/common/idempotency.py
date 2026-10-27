@@ -46,7 +46,9 @@ def run_idempotent(
                 ) from None
             if record.response_status is not None:
                 return record.response_status, record.response_body or {}
-            raise IdempotencyKeyReused("A request with this key is in progress.") from None
+            raise IdempotencyKeyReused(
+                "A request with this key is in progress."
+            ) from None
 
         status, body = action()
         record.response_status = status
