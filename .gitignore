@@ -1,0 +1,10 @@
+@"
+.venv/
+__pycache__/
+*.pyc
+.env
+db.sqlite3
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+"@ | Set-Content -Path .gitignore -Encoding utf8
