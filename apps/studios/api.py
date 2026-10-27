@@ -7,6 +7,10 @@ from apps.accounts.permissions import require_staff
 from . import services
 from .schemas import ClassIn, ClassOut, StudioIn, StudioOut, StudioUpdateIn
 
+from datetime import datetime
+
+from . import selectors
+
 router = Router(tags=["studios"], auth=TokenAuth())
 
 
@@ -42,3 +46,26 @@ def schedule_class(
         credit_cost=session.credit_cost,
         spots_available=session.capacity,
     )
+
+
+@router.get("/classes", response=list[ClassOut])
+def browse_classes(
+    request: HttpRequest,
+    start: datetime,
+    end: datetime,
+    studio_id: int | None = None,
+) -> list[ClassOut]:
+    sessions = selectors.classes_in_range(start, end, studio_id)
+    return [
+        ClassOut(
+            id=s.pk,
+            studio_id=s.studio_id,
+            title=s.title,
+            starts_at=s.starts_at,
+            duration_minutes=s.duration_minutes,
+            capacity=s.capacity,
+            credit_cost=s.credit_cost,
+            spots_available=s.spots_available,  # type: ignore[attr-defined]
+        )
+        for s in sessions
+    ]
