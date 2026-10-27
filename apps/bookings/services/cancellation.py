@@ -8,7 +8,7 @@ from ..enums import BookingStatus
 from ..exceptions import BookingNotFound, ClassAlreadyStarted
 from ..models import Booking
 from .booking import lock_class
-
+from .waitlist import promote_from_waitlist
 
 def cancel_booking(
     booking_id: int,
@@ -47,4 +47,6 @@ def cancel_booking(
             credit_services.refund_booking(booking.pk, clock=clock)
         # Late cancel: no ledger entry. The original charge stays final.
 
+        promote_from_waitlist(session, clock)
         return booking
+
