@@ -66,3 +66,12 @@ def test_same_key_same_request_runs_action_once(member: User) -> None:
     run_idempotent(member, "k", {"class_id": 1}, action)
     run_idempotent(member, "k", {"class_id": 1}, action)
     assert len(calls) == 1
+
+
+def test_browse_classes_route_works(member: User) -> None:
+    resp = Client().get(
+        "/api/studios/classes",
+        {"start": "2026-11-01T00:00:00+05:30", "end": "2026-11-30T00:00:00+05:30"},
+        headers={"Authorization": bearer(member)},
+    )
+    assert resp.status_code == 200
