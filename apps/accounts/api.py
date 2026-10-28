@@ -2,10 +2,9 @@ from django.http import HttpRequest
 from ninja import Router
 
 from . import services
-from .auth import TokenAuth
-from .models import User
-from .permissions import ensure_self_or_staff, require_staff
-from .schemas import LoginIn, LoginOut, MeOut
+from .auth import TokenAuth, get_user
+from .permissions import require_staff
+from .schemas import LoginIn, LoginOut, MeOut, UserCreateIn
 
 router = Router(tags=["auth"])
 
@@ -18,17 +17,12 @@ def login(request: HttpRequest, payload: LoginIn) -> LoginOut:
 
 @router.get("/me", response=MeOut, auth=TokenAuth())
 def me(request: HttpRequest) -> MeOut:
-    user: User = request.auth  # type: ignore[attr-defined]
+    user = get_user(request)
     return MeOut(id=user.pk, username=user.username, role=user.role)
 
 
-@router.get("/staff-only", auth=TokenAuth())
-def staff_only(request: HttpRequest) -> dict[str, str]:
-    require_staff(request.auth)  # type: ignore[attr-defined]
-    return {"detail": "hello staff"}
-
-
-@router.get("/members/{member_id}/check", auth=TokenAuth())
-def member_check(request: HttpRequest, member_id: int) -> dict[str, str]:
-    ensure_self_or_staff(request.auth, member_id)  # type: ignore[attr-defined]
-    return {"detail": "allowed"}
+@router.post("/users", response={201: MeOut}, auth=TokenAuth())
+def create_user(request: HttpRequest, payload: UserCreateIn) -> tuple[int, MeOut]:
+    require_staff(get_user(request))
+    user = services.create_user(payload.username, payload.password, payload.role)
+    return 201, MeOut(id=user.pk, username=user.username, role=user.role)
